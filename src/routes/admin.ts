@@ -1,7 +1,14 @@
 import { Router } from 'express';
 import * as auth from '../controllers/auth';
+import * as events from '../controllers/events';
 
 export const router = Router();
 
-router.get('/ping', auth.validade);
 router.post('/login', auth.login);
+router.get('/ping', auth.ping);
+
+router.post('/events', auth.validade, events.create);
+router.get('/events', auth.validade, events.getAll);
+router.get('/events/:id', auth.validade, events.getEvent);
+router.put('/events/:id', auth.validade, events.update);
+router.delete('/events/:id', auth.validade, events.remove);
