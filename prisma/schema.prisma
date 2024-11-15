@@ -12,3 +12,32 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model Event {
+  id          Int           @id @default(autoincrement())
+  status      Boolean       @default(false)
+  title       String
+  description String
+  grouped     Boolean       @default(false)
+  EventGroup  EventGroup[]
+  EventPeople EventPeople[]
+}
+
+model EventGroup {
+  id          Int           @id @default(autoincrement())
+  eventId     Int
+  name        String
+  event       Event?        @relation(fields: [eventId], references: [id])
+  EventPeople EventPeople[]
+}
+
+model EventPeople {
+  id      Int         @id @default(autoincrement())
+  eventId Int
+  groupId Int
+  name    String
+  cpf     String
+  matched String      @default("")
+  event   Event?      @relation(fields: [eventId], references: [id])
+  group   EventGroup? @relation(fields: [groupId], references: [id])
+}
