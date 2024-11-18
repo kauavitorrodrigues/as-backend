@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "node --import=tsx --watch --env-file=.env ./src/server.ts",
     "build": "tsc",
-    "start": "node build/server.js"
+    "start": "node build/server.js",
+    "migrate:dev": "prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy"
   },
   "author": "",
   "license": "ISC",

@@ -3,6 +3,7 @@ import cors from "cors";
 import http from "http";
 import https from "https";
 import router from "./routes/main";
+import fs from "fs";
 import { requestInterceptor } from "./utils/requestInterceptor";
 
 const server = express();
@@ -25,8 +26,15 @@ const httpServer = http.createServer(server);
 
 if(process.env.NODE_ENV === "production") {
 
-    // TODO: Configure SSL certificate
-    // TODO: Run server in PORT 80 and 443
+    const options = {
+        key: fs.readFileSync(process.env.SSL_KEY as string),
+        cert: fs.readFileSync(process.env.SSL_CERT as string)
+    };
+
+    const httpsServer = https.createServer(options, server);
+
+    run(80, httpServer);
+    run(443, httpsServer);
 
 } else {
     const port: number = process.env.PORT ? parseInt(process.env.PORT) : 9000;
