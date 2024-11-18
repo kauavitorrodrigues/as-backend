@@ -1,6 +1,7 @@
 import { RequestHandler } from "express-serve-static-core";
-import { CreatePersonSchema, UpdatePersonSchema } from "../schemas/person";
+import { CreatePersonSchema, SearchPersonSchema, UpdatePersonSchema } from "../schemas/person";
 import * as people from "../services/people";
+import { decrypt } from "../utils/match";
 
 /**
  * Handles the creation of a new person.
@@ -90,6 +91,71 @@ export const getPerson: RequestHandler = async (req, res) => {
     if (person) {
         res.json({ person: person });
         return;
+    }
+
+    res.status(500).json({ error: "Erro ao buscar pessoa" });
+
+};
+
+/**
+ * Handles the search for a person based on the provided event ID and query parameters.
+ * 
+ * @param req - The request object containing parameters and query data.
+ * @param res - The response object used to send back the appropriate response.
+ * 
+ * The function performs the following steps:
+ * 1. Extracts the `event_id` from the request parameters.
+ * 2. Validates the query parameters using `SearchPersonSchema`.
+ * 3. If validation fails, responds with a 401 status and error details.
+ * 4. Attempts to retrieve the person using the `event_id` and `cpf` from the query data.
+ * 5. If a person is found and has a matched person, decrypts the match ID and retrieves the matched person.
+ * 6. If the matched person is found, responds with the details of both the person and the matched person.
+ * 7. If any step fails, responds with a 500 status and an error message.
+ * 
+ * @returns {Promise<void>} - A promise that resolves when the response is sent.
+ */
+export const searchPerson: RequestHandler = async (req, res): Promise<void> => {
+
+    const { event_id } = req.params;
+
+    const queryData = SearchPersonSchema.safeParse(req.query);
+
+    if (!queryData.success) {
+        res.status(401).json({ error: queryData.error.flatten().fieldErrors })
+        return;
+    }
+
+    const person = await people.getPerson({
+        eventId: parseInt(event_id),
+        cpf: queryData.data.cpf
+    });
+
+    if (person && person.matched) {
+
+        const matchId = decrypt(person.matched);
+
+        const personMatch = await people.getPerson({
+            eventId: parseInt(event_id),
+            id: matchId
+        });
+
+        if (personMatch) {
+
+            res.json({
+                person: {
+                    id: person.id,
+                    name: person.name,
+                },
+                personMatched: {
+                    id: personMatch.id,
+                    name: personMatch.name,
+                },
+            });
+
+            return;
+
+        }
+
     }
 
     res.status(500).json({ error: "Erro ao buscar pessoa" });

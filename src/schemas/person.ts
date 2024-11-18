@@ -7,5 +7,9 @@ export const CreatePersonSchema = z.object({
 
 export const UpdatePersonSchema = z.object({
     name: z.string().min(1, "Name is required and must be a string").optional(),
-    cpf: z.string().min(1, "CPF is required and must be a string").transform((cpf) => cpf.replace(/\.|-/gm, '')).optional(),
+    cpf: z.string().min(1, "CPF must be a string").transform((cpf) => cpf.replace(/\.|-/gm, '')).optional(),
+});
+
+export const SearchPersonSchema = z.object({
+    cpf: z.string().min(1, "CPF is required and must be a string").transform((cpf) => cpf.replace(/\.|-/gm, ''))
 });

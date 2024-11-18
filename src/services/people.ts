@@ -2,7 +2,7 @@ import { EventPeople, Prisma } from "@prisma/client";
 import { prisma } from "../libs/prisma";
 import * as events from "./event";
 import * as groups from "./groups";
-import { createPersonData, personFilters, updatePersonData, updatePersonFilters } from "../types/People";
+import { createPersonData, deletePersonFilters, getPersonFilters, updatePersonData, updatePersonFilters } from "../types/People";
 
 /**
  * Creates a new person associated with an event and a group.
@@ -56,10 +56,10 @@ export const getPeoples = async (eventId: number, groupId?: number): Promise<Eve
 /**
  * Retrieves a person based on the provided filters.
  *
- * @param {personFilters} filters - The filters to apply when searching for the person.
+ * @param {getPersonFilters} filters - The filters to apply when searching for the person.
  * @returns {Promise<EventPeople | false>} - A promise that resolves to the found person or false if no person is found or an error occurs.
  */
-export const getPerson = async (filters: personFilters): Promise<EventPeople | false> => {
+export const getPerson = async (filters: getPersonFilters): Promise<EventPeople | false> => {
 
     try {
 
@@ -96,14 +96,14 @@ export const updatePeople = async (filters: updatePersonFilters, data: updatePer
 /**
  * Deletes people from the database based on the provided filters.
  *
- * @param {personFilters} filters - The filters to identify which people to delete.
+ * @param {deletePersonFilters} filters - The filters to identify which people to delete.
  * @returns {Promise<boolean>} - A promise that resolves to true if the deletion was successful, or false if an error occurred.
  */
-export const deletePeople = async (filters: personFilters): Promise<boolean> => {
+export const deletePeople = async (filters: deletePersonFilters): Promise<boolean> => {
 
     try {
 
-        await prisma.eventPeople.delete( { where: filters } );
+        await prisma.eventPeople.delete({ where: filters });
         return true;
 
     } catch (err) { return false };
