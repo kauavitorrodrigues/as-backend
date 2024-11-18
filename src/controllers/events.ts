@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
 import * as events from "../services/event";
+import * as people from "../services/people";
 import { createEventSchema, updateEventSchema } from "../schemas/event";
 
 /**
@@ -123,12 +124,15 @@ export const update: RequestHandler = async (req, res) => {
 
         if(updatedEvent.status) {
 
-            // Fazer Sorteio
+            const result = await events.draw(parseInt(id));
+
+            if(!result) {
+                res.status(500).json({ error: "Não é possível realizar o sorteio" });
+                return;
+            }
 
         } else {
-
-            // Limpar o Sorteio
-
+            await people.updatePeople({ eventId: parseInt(id)}, { matched: ""});
         }
 
         res.json({ event: updatedEvent });
